@@ -40,7 +40,7 @@ notation, potentially improving the readability of Scheme programs.</p>
 <h2 id="issues">Issues</h2>
 
 <ul>
-  <li>Implemented using syntax-rules macros is not easy and error reports may be difficult to express.</li>
+  <li>Implementing using <code>syntax-rules</code> macros is not easy, and error reports may be difficult to express.</li>
 </ul>
 
 <h2 id="rationale">Rationale</h2>
@@ -75,7 +75,7 @@ examples can be written as below:</p>
    (define k (expr (((abs dark) * 20 - total * 10) + total - 1) \ total - 1))
 </code></pre>
 
-<p>The syntax <code class="expr-keyword">expr</code> is inspired by the eponym UNIX tool <i>expr</i>.
+<p>The syntax <code class="expr-keyword">expr</code> is inspired by the eponymous UNIX tool <i>expr</i>.
 The expression at its right is expressed using almost standard formulae.</p>
 
 <p>Writing arithmetic expressions is common when programming.
@@ -126,7 +126,7 @@ using:</p>
 
 <pre><code>   (import (srfi expr-266))</code></pre>
 
-<p>The syntaxic item <b>expr</b> is followed by an expression
+<p>The syntactic item <b>expr</b> is followed by an expression
 whose elements <b><code>E</code></b> are separated by space
 (except if enclosed in braces):</p>
 
@@ -135,10 +135,10 @@ whose elements <b><code>E</code></b> are separated by space
 <p>The expression <b><code>E ...</code></b> is made of variables,
 numbers and operators.</p>
 
-<p>Operators are keywords and can't be redefined,
-they are scanned as symbols not as bindings to values.
-This rule is required for providing an univoque translation
-of a rich set of operators and to provision it without
+<p>Operators are keywords, and can't be redefined.
+They are scanned as symbols, not as bindings to values.
+This rule is required for providing an unambiguous translation
+of a rich set of operators, and to provision it without
 requiring any <i>import</i> of any library.</p>
 
 <p>Here is the list of operators defined for <b>expr</b>:</p>
