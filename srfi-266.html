@@ -40,7 +40,7 @@ notation, potentially improving the readability of Scheme programs.</p>
 <h2 id="issues">Issues</h2>
 
 <ul>
- <li>Implemented using syntax-rules macros is not easy and error reports may be difficult to express.</p>
+  <li>Implemented using syntax-rules macros is not easy and error reports may be difficult to express.</li>
 </ul>
 
 <h2 id="rationale">Rationale</h2>
@@ -105,13 +105,13 @@ differs for the the following reasons:</p>
 <p>However, SRFI-105 is compatible with this SRFI when <i>$nfx$</i>
 and is defined as below:
 
-<code>
 <pre>
+<code>
    (define-syntax $nfx$
       (syntax-rules ()
          ((_ x ...) (expr x ...))))
-</pre>
 </code>
+</pre>
 
 
 <h2 id="specification">Specification</h2>
@@ -144,8 +144,7 @@ requiring any <i>import</i> of any library.</p>
 <p>Here is the list of operators defined for <b>expr</b>:</p>
 
 <table border="1">
-  <caption>
-  </caption>
+
   <thead>
     <tr> <th>operator</th> <th>type</th> <th>priority</th> <th>operation</th> </tr>
   </thead>
@@ -284,7 +283,6 @@ In that case few cases are distinguished:</p>
   literaly by this subexpression. Then <b><code>((a ...))</code></b>
   becomes <b><code>(a ...)</code></b> without applying implicitely <b>expr</b>
   to the enclosed subexpression.</p></dd>
-  </dd>
 </dl>
 
 <p>Application of the syntax <b>expr</b> should transform the expression
