@@ -1,3 +1,5 @@
+SPDX-FileCopyrightText: 2026 José Bollo
+SPDX-License-Identifier: MIT
 
 The program 'test-expr.scm' checks that the produced
 implementation of 'expr' works as expected.

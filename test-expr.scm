@@ -1,3 +1,6 @@
+; SPDX-FileCopyrightText: 2026 José Bollo
+;
+; SPDX-License-Identifier: MIT
 ; SRFI-266 demo by José Bollo, 2026
 
 (include "expr.scm")
