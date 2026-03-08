@@ -162,7 +162,7 @@
         (op2 (oper-op oper2)))
     (and (eqv? (op-type op2) 'ternary2)
          (eqv? (op-repl op2) (op-symbol op1)))))
-  
+
 ; transform the operator 'oper' on its arguments
 (define (oper-apply oper args)
   (let ((tid  (oper-item oper))
@@ -405,7 +405,7 @@
 
       ((ternary2)
         (syntax-violation #f "second of ternary without first" (oper-item oper)))
-      
+
       (else
         (error "unexpected operator type" (oper-type oper) (oper-item oper) rest)))))
 
@@ -430,4 +430,3 @@
 
 ; definition of expr using define-expr and standard operators' definition
 (define-expr expr stdops)
-
