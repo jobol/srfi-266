@@ -57,7 +57,7 @@ introduces a kind of ambiguity that cannot be removed.</p>
     <ul>
       <li><a href="#the-expr-syntax">The expr syntax</a></li>
       <li><a href="#operator-types">Operator types</a></li>
-      <li><a href="#parentheses-in-expressions">Parentheses in expressions</a></li>
+      <li><a href="#sub-expressions">Subexpressions</a></li>
       <li><a href="#predefined-operators">Predefined operators</a></li>
       <li><a href="#customize">Defining or redefining operators</a></li>
     </ul>
@@ -311,13 +311,13 @@ operators, calls and subexpressions.</p>
 
         <ul>
 		<li>The <i>callee</i> is a symbol or a subexpression evaluating to
-                a procedure.  It has the location of a prefix operator,
+                a procedure. It has the location of a prefix operator,
                 but is not a prefix operator.</li>
 
 		<li>The <i>arguments</i> are either a single expression or
-                a subexpression in parentheses.
-                When it is a subexpression in parentheses, the arguments of the
-                call are separated by spaces.
+		a <a href="#list-subexpression">list subexpression</a>.
+                When it is a list subexpression, the arguments of the
+                call are parsed from the elements of the list.
                 This means that there is no function call in that case.  </li>
         </ul>
 
@@ -369,7 +369,8 @@ operators, calls and subexpressions.</p>
 </li>
 
 <li>
-        <p>Subexpressions are expressions enclosed in parentheses.</p>
+        <p>Subexpressions are list data (i.e. lexically, they are
+	enclosed in parentheses).</p>
 
         <p>Subexpressions are of three different types, depending on the
         context.</p>
@@ -460,12 +461,12 @@ because they have a specific implementation:</p>
     <i>call</i>
     <p>No operator for function call operation.</p>
     <p><b><code>X Y</code></b> becomes
-       <b><code>((expr X) (expr-for-args Y))</code></b>.</p>
-    <p>Space separated arguments.</p>
-    <p><b><code>X (ARG1 ARG2 ...)</code></b> becomes
-       <b><code>((expr X) (expr ARG1) (expr ARG2) ...)</code></b>.</p>
+       <b><code>((expr P) (expr-for-args Y))</code></b>.</p>
+    <p>List subexpression arguments.</p>
+    <p><b><code>X (Y1 Y2 ...)</code></b> becomes
+       <b><code>((expr P) (expr Y1) (expr Y2) ...)</code></b>.</p>
     <p>Right associative.</p>
-    <p><b><code>X Y Z</code></b> becomes
+    <p><b><code>X Y Z</code></b> is like
        <b><code>(X (Y Z))</code></b>.</p>
   </li>
 
@@ -477,37 +478,42 @@ because they have a specific implementation:</p>
   </li>
 </ul>
 
-<h3 id="parentheses-in-expressions">Parentheses in expressions</h3>
+<h3 id="sub-expressions">Subexpressions</h3>
 
-<p id="sub-expressions">Expressions can have subexpressions in
-parentheses.  They occur in three cases.</p>
+<p>Expressions can have subexpressions, wich are list data
+(i.e. lexically, they are enclosed in parentheses).</p>
+
+<p>Subexpressions occur in three cases.</p>
 
 <dl>
-  <dt>arguments</dt>
+  <dt id="list-subexpression">list subexpression</dt>
   <dd>
-          <p>When the subexpression is the argument of a call,
-	  spaces are interpreted as separating arguments.</p>
+          <p>A subexpression argument of a call is interpreted as
+	  a list of expressions. Arguments of the call are parsed
+	  from the elements of the list.</p>
           <p>In other words, <b><code>f (a b ...)</code></b> expands as
-          <b><code>((expr f) (expr a) (expr b) ...)</code></b>.</p>
+          <b><code>((expr f) (expr a) (expr b) ...)</code></b>,
+	  where <i>a</i>, <i>b</i>, ... are not enforced to be an atom,
+	  they are parsed as expressions.</p>
+  </dd>
+
+  <dt>escape</dt>
+  <dd>
+        <p>Except if at the place of an argument of a call,
+        when a subexpression only contains one list,
+	it expands to that inner list literally, without parsing.</p>
+	</p>In other words, <b><code>((a ...))</code></b>
+        becomes <b><code>(a ...)</code></b> without applying <b>expr</b>
+        to the enclosed list.</p>
   </dd>
 
   <dt>subexpressions</dt>
   <dd>
         <p>Except if at the place of an argument of a call,
-        and except if made of only one subexpression,
+        and except if made of only one list,
         a subexpression <b><code>(a ...)</code></b>
-        expands as <b><code>(expr a ...)</code></b>.
-        </p>
+        expands as <b><code>(expr a ...)</code></b>.</p>
   </dd>
-
-  <dt>escapes</dt>
-  <dd>
-        <p>Except if at the place of an argument of a call,
-        when a subexpression only contains one subexpression,
-	it expands to the inner subexpression, literally.</p>
-	</p>In other words, <b><code>((a ...))</code></b>
-        becomes <b><code>(a ...)</code></b> without applying <b>expr</b>
-        to the enclosed subexpression.</p></dd>
 </dl>
 
 <h3 id="predefined-operators">Predefined operators</h3>
