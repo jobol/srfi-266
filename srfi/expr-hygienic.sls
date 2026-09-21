@@ -37,6 +37,7 @@
                   (fl<=? fl<=)
                   (fl>=? fl>=)
                   (fl=? fl=)))
+
   (define (~& x y) (~ (& x y)))
   (define (~^ x y) (~ (^ x y)))
   (define (~: x y) (~ (: x y)))
@@ -55,6 +56,7 @@
   (define-syntax in
     (lambda (x)
       (syntax-violation 'in "only in expr syntax" x #f)))
+
   (define-syntax expr
     (let ((opdefs
            `((,#'@ left 10 ,#'@)
@@ -124,6 +126,7 @@
              (,#'fl>= compare 80 ,#'fl>=)
              (,#'fl= compare 80 ,#'fl=)
              (,#'fl!= left 90 ,#'fl!=))))
+
       ; trick to get distinct variables, to be changed
       (define (nvar)
         (let ((x (generate-temporaries '(x))))

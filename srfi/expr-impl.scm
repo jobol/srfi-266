@@ -4,6 +4,115 @@
 ; SRFI-266 demo by José Bollo, 2026
 
 ;-------------------------------------------------------
+; definition of operators
+;-------------------------------------------------------
+
+(define-syntax alias-never
+  (syntax-rules ()
+    ((_ operator)
+          (define-syntax operator
+            (syntax-rules ()
+              ((_ ...)    (syntax-error "operator invalid outside expr syntax" 'operator)))))))
+
+(define-syntax alias-unary
+  (syntax-rules ()
+    ((_ operator function)
+          (define-syntax operator
+            (syntax-rules ()
+              ((operator x) (function x))
+              ((_ x ...)    (syntax-error "operator takes 1 arguments" 'operator)))))))
+
+(define-syntax alias-binary
+  (syntax-rules ()
+    ((_ operator function)
+          (define-syntax operator
+            (syntax-rules ()
+              ((operator x y) (function x y))
+              ((_ x ...)      (syntax-error "operator takes 2 arguments" 'operator)))))))
+
+(define-syntax alias-many
+  (syntax-rules ()
+    ((_ operator function)
+          (define-syntax operator
+            (syntax-rules ()
+              ((operator x y z ...) (function x y z ...))
+              ((_ x ...)            (syntax-error "operator takes at least 2 arguments" 'operator)))))))
+
+
+(alias-binary  @   vector-ref)
+(alias-binary  @.  list-ref)
+(alias-binary  @@  bytevector-u8-ref)
+(alias-binary  **  expt)
+(alias-binary  //  quotient)
+(alias-binary  %   remainder)
+
+(alias-unary   ~   bitwise-not)
+(alias-binary  <<  bitwise-arithmetic-shift-left)
+(alias-binary  >>  bitwise-arithmetic-shift-right)
+(alias-binary  &   bitwise-and)
+(alias-binary  ^   bitwise-xor)
+(alias-binary  :   bitwise-ior)
+(alias-binary  ~&  bitwise-nand)
+(alias-binary  ~^  bitwise-eqv)
+(alias-binary  ~:  bitwise-nor)
+
+(alias-unary   fx~   fxnot)
+(alias-binary  fx//  fxquotient)
+(alias-binary  fx%   fxremainder)
+(alias-binary  fx<<  bitwise-arithmetic-shift-left)
+(alias-binary  fx>>  bitwise-arithmetic-shift-right)
+(alias-binary  fx&   bitwise-and)
+(alias-binary  fx^   bitwise-xor)
+(alias-binary  fx:   bitwise-or)
+
+(alias-binary  fl//  flquotient)
+(alias-binary  fl%   flremainder)
+
+(alias-many    fx<   fx<?)
+(alias-many    fx>   fx>?)
+(alias-many    fx<=  fx<=?)
+(alias-many    fx>=  fx>=?)
+(alias-many    fx=   fx=?)
+(alias-many    fl<   fl<?)
+(alias-many    fl>   fl>?)
+(alias-many    fl<=  fl<=?)
+(alias-many    fl>=  fl>=?)
+(alias-many    fl=   fl=?)
+
+(define-syntax ?
+  (syntax-rules ()
+    ((? x) (if x 1 0))
+    ((_ x ...) (syntax-error "? takes 1 arguments"))))
+
+(define-syntax !=
+  (syntax-rules ()
+    ((!= x y z ...) (not (= x y z ...)))
+    ((_ x ...) (syntax-error "!= takes at least 2 arguments"))))
+
+(define-syntax fx!=
+  (syntax-rules ()
+    ((fx!= x y z ...) (not (fx=? x y z ...)))
+    ((_ x ...) (syntax-error "fx!= takes at least 2 arguments"))))
+
+(define-syntax fl!=
+  (syntax-rules ()
+    ((fl!= x y z ...) (not (fl=? x y z ...)))
+    ((_ x ...) (syntax-error "fl!= takes at least 2 arguments"))))
+
+(define-syntax implies
+  (syntax-rules ()
+    ((implies x y) (or (not x) y))
+    ((_ x ...) (syntax-error "implies takes 2 arguments"))))
+
+(define-syntax as
+  (syntax-rules ()
+    ((_ x ...) (syntax-error "'as' is valid only in expr syntax"))))
+
+(define-syntax in
+  (syntax-rules ()
+    ((_ x ...) (syntax-error "'in' is valid only in expr syntax"))))
+
+;-------------------------------------------------------
 ; procedural part
 ;-------------------------------------------------------
 
