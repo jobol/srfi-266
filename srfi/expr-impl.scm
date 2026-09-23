@@ -4,113 +4,55 @@
 ; SRFI-266 demo by José Bollo, 2026
 
 ;-------------------------------------------------------
-; definition of operators
+; expr define operators that must not be confused with
+; their matching operation. Then it is an error to try
+; using it outside 'expr' syntax.
 ;-------------------------------------------------------
 
-(define-syntax alias-never
-  (syntax-rules ()
-    ((_ operator)
+(define-syntax strict-operators
+  (syntax-rules ::: ()
+    ((_ operator :::)
+       (begin
           (define-syntax operator
             (syntax-rules ()
-              ((_ ...)    (syntax-error "operator invalid outside expr syntax" 'operator)))))))
+              ((_ ...)    (syntax-error "invalid outside expr syntax" 'operator)))) :::
+	  ))))
 
-(define-syntax alias-unary
+(strict-operators
+  @ @. @@ ** ? // % != implies as in ~ << >> & ^ : ~& ~^ ~:
+  fx~ fx// fx% fx<< fx>> fx< fx> fx<= fx>= fx= fx!= fx& fx^ fx:
+  fl// fl< fl> fl<= fl>= fl= fl!=)
+
+;-------------------------------------------------------
+;-------------------------------------------------------
+
+(define-syntax expr-?
   (syntax-rules ()
-    ((_ operator function)
-          (define-syntax operator
-            (syntax-rules ()
-              ((operator x) (function x))
-              ((_ x ...)    (syntax-error "operator takes 1 arguments" 'operator)))))))
+    ((_ x) (if x 1 0))))
 
-(define-syntax alias-binary
+(define-syntax expr-implies
   (syntax-rules ()
-    ((_ operator function)
-          (define-syntax operator
-            (syntax-rules ()
-              ((operator x y) (function x y))
-              ((_ x ...)      (syntax-error "operator takes 2 arguments" 'operator)))))))
+    ((_ x y) (or (not x) y))))
 
-(define-syntax alias-many
+(define-syntax expr-if
   (syntax-rules ()
-    ((_ operator function)
-          (define-syntax operator
-            (syntax-rules ()
-              ((operator x y z ...) (function x y z ...))
-              ((_ x ...)            (syntax-error "operator takes at least 2 arguments" 'operator)))))))
+    ((_ ift cnd iff) (if cond ift iff))))
 
-
-(alias-binary  @   vector-ref)
-(alias-binary  @.  list-ref)
-(alias-binary  @@  bytevector-u8-ref)
-(alias-binary  **  expt)
-(alias-binary  //  quotient)
-(alias-binary  %   remainder)
-
-(alias-unary   ~   bitwise-not)
-(alias-binary  <<  bitwise-arithmetic-shift-left)
-(alias-binary  >>  bitwise-arithmetic-shift-right)
-(alias-binary  &   bitwise-and)
-(alias-binary  ^   bitwise-xor)
-(alias-binary  :   bitwise-ior)
-(alias-binary  ~&  bitwise-nand)
-(alias-binary  ~^  bitwise-eqv)
-(alias-binary  ~:  bitwise-nor)
-
-(alias-unary   fx~   fxnot)
-(alias-binary  fx//  fxquotient)
-(alias-binary  fx%   fxremainder)
-(alias-binary  fx<<  bitwise-arithmetic-shift-left)
-(alias-binary  fx>>  bitwise-arithmetic-shift-right)
-(alias-binary  fx&   bitwise-and)
-(alias-binary  fx^   bitwise-xor)
-(alias-binary  fx:   bitwise-or)
-
-(alias-binary  fl//  flquotient)
-(alias-binary  fl%   flremainder)
-
-(alias-many    fx<   fx<?)
-(alias-many    fx>   fx>?)
-(alias-many    fx<=  fx<=?)
-(alias-many    fx>=  fx>=?)
-(alias-many    fx=   fx=?)
-(alias-many    fl<   fl<?)
-(alias-many    fl>   fl>?)
-(alias-many    fl<=  fl<=?)
-(alias-many    fl>=  fl>=?)
-(alias-many    fl=   fl=?)
-
-(define-syntax ?
+(define-syntax expr-as
   (syntax-rules ()
-    ((? x) (if x 1 0))
-    ((_ x ...) (syntax-error "? takes 1 arguments"))))
+    ((_ exp nas eva) (let-values ((nas exp)) eva))))
 
-(define-syntax !=
+(define-syntax expr-!=
   (syntax-rules ()
-    ((!= x y z ...) (not (= x y z ...)))
-    ((_ x ...) (syntax-error "!= takes at least 2 arguments"))))
+    ((_ x y z ...) (not (= x y z ...)))))
 
-(define-syntax fx!=
+(define-syntax expr-fx!=
   (syntax-rules ()
-    ((fx!= x y z ...) (not (fx=? x y z ...)))
-    ((_ x ...) (syntax-error "fx!= takes at least 2 arguments"))))
+    ((_ x y z ...) (not (fx=? x y z ...)))))
 
-(define-syntax fl!=
+(define-syntax expr-fl!=
   (syntax-rules ()
-    ((fl!= x y z ...) (not (fl=? x y z ...)))
-    ((_ x ...) (syntax-error "fl!= takes at least 2 arguments"))))
-
-(define-syntax implies
-  (syntax-rules ()
-    ((implies x y) (or (not x) y))
-    ((_ x ...) (syntax-error "implies takes 2 arguments"))))
-
-(define-syntax as
-  (syntax-rules ()
-    ((_ x ...) (syntax-error "'as' is valid only in expr syntax"))))
-
-(define-syntax in
-  (syntax-rules ()
-    ((_ x ...) (syntax-error "'in' is valid only in expr syntax"))))
+    ((_ x y z ...) (not (fl=? x y z ...)))))
 
 ;-------------------------------------------------------
 ; procedural part
@@ -618,78 +560,78 @@
 
 ; standard operators
 (define stdops `(
-    (@         left      10  vector-ref)
-    (@.        left      10  list-ref)
-    (@@        left      10  bytevector-u8-ref)
-    (@         prefix    10  unbox)
-    (**        left      20  expt)
-    (-         prefix    30  -)
-    (+         prefix    30  +)
-    (not       prefix    30  not)
-    (?         prefix    30  ,op-bool2int)
-    (*         list      40  *)
-    (/         list      40  /)
-    (//        left      40  quotient)
-    (%         left      40  remainder)
-    (+         list      50  +)
-    (-         list      50  -)
-    (<         compare   80  <)
-    (>         compare   80  >)
-    (<=        compare   80  <=)
-    (>=        compare   80  >=)
-    (=         compare   80  =)
-    (!=        left      90  ,(gen-not '=))
-    (and       list     130  and)
-    (or        list     140  or)
-    (implies   left     150  ,op-implies)
+    (,#'@         left      10  ,#'vector-ref)
+    (,#'@.        left      10  ,#'list-ref)
+    (,#'@@        left      10  ,#'bytevector-u8-ref)
+    (,#'@         prefix    10  ,#'unbox)
+    (,#'**        left      20  ,#'expt)
+    (,#'-         prefix    30  ,#'-)
+    (,#'+         prefix    30  ,#'+)
+    (,#'not       prefix    30  ,#'not)
+    (,#'?         prefix    30  ,#'expr-?)
+    (,#'*         list      40  ,#'*)
+    (,#'/         list      40  ,#'/)
+    (,#'//        left      40  ,#'quotient)
+    (,#'%         left      40  ,#'remainder)
+    (,#'+         list      50  ,#'+)
+    (,#'-         list      50  ,#'-)
+    (,#'<         compare   80  ,#'<)
+    (,#'>         compare   80  ,#'>)
+    (,#'<=        compare   80  ,#'<=)
+    (,#'>=        compare   80  ,#'>=)
+    (,#'=         compare   80  ,#'=)
+    (,#'!=        left      90  ,#'expr-!=)
+    (,#'and       list     130  ,#'and)
+    (,#'or        list     140  ,#'or)
+    (,#'implies   left     150  ,#'expr-implies)
 
-    (if        ternary  160  ,op-if)
-    (else      pair-of  160  if)
-    (as        as       160  ,op-as)
-    (in        pair-of  160  as)
+    (,#'if        ternary  160  ,#'expr-if)
+    (,#'else      pair-of  160  ,#'if)
+    (,#'as        as       160  ,#'expr-as)
+    (,#'in        pair-of  160  ,#'as)
 
-    (~         prefix    30  bitwise-not)
-    (<<        left      60  bitwise-arithmetic-shift-left)
-    (>>        left      60  bitwise-arithmetic-shift-right)
-    (&         list     100  bitwise-and)
-    (^         list     110  bitwise-xor)
-    (:         list     120  bitwise-ior)
-    (~&        left     100  bitwise-nand)
-    (~^        left     110  bitwise-eqv)
-    (~:        left     120  bitwise-nor)
+    (,#'~         prefix    30  ,#'bitwise-not)
+    (,#'<<        left      60  ,#'bitwise-arithmetic-shift-left)
+    (,#'>>        left      60  ,#'bitwise-arithmetic-shift-right)
+    (,#'&         list     100  ,#'bitwise-and)
+    (,#'^         list     110  ,#'bitwise-xor)
+    (,#':         list     120  ,#'bitwise-ior)
+    (,#'~&        left     100  ,#'bitwise-nand)
+    (,#'~^        left     110  ,#'bitwise-eqv)
+    (,#'~:        left     120  ,#'bitwise-nor)
 
-    (fx-       prefix    30  fxneg)
-    (fx~       prefix    30  fxnot)
-    (fx*       left      40  fx*)
-    (fx//      left      40  fxquotient)
-    (fx%       left      40  fxremainder)
-    (fx+       left      50  fx+)
-    (fx-       left      50  fx-)
-    (fx<<      left      60  fxarithmetic-shift-left)
-    (fx>>      left      60  fxarithmetic-shift-right)
-    (fx<       compare   80  fx<?)
-    (fx>       compare   80  fx>?)
-    (fx<=      compare   80  fx<=?)
-    (fx>=      compare   80  fx>=?)
-    (fx=       compare   80  fx=?)
-    (fx!=      left      90  ,(gen-not 'fx=?))
-    (fx&       list     100  fxand)
-    (fx^       list     110  fxxor)
-    (fx:       list     120  fxior)
+    (,#'fx-       prefix    30  ,#'fxneg)
+    (,#'fx~       prefix    30  ,#'fxnot)
+    (,#'fx*       left      40  ,#'fx*)
+    (,#'fx//      left      40  ,#'fxquotient)
+    (,#'fx%       left      40  ,#'fxremainder)
+    (,#'fx+       left      50  ,#'fx+)
+    (,#'fx-       left      50  ,#'fx-)
+    (,#'fx<<      left      60  ,#'fxarithmetic-shift-left)
+    (,#'fx>>      left      60  ,#'fxarithmetic-shift-right)
+    (,#'fx<       compare   80  ,#'fx<?)
+    (,#'fx>       compare   80  ,#'fx>?)
+    (,#'fx<=      compare   80  ,#'fx<=?)
+    (,#'fx>=      compare   80  ,#'fx>=?)
+    (,#'fx=       compare   80  ,#'fx=?)
+    (,#'fx!=      left      90  ,#'expr-fx!=)
+    (,#'fx&       list     100  ,#'fxand)
+    (,#'fx^       list     110  ,#'fxxor)
+    (,#'fx:       list     120  ,#'fxior)
 
-    (fl-       prefix    30  fl-)
-    (fl*       left      40  fl*)
-    (fl/       left      40  fl/)
-    (fl//      left      40  flquotient)
-    (fl%       left      40  flremainder)
-    (fl+       left      50  fl+)
-    (fl-       left      50  fl-)
-    (fl<       compare   80  fl<?)
-    (fl>       compare   80  fl>?)
-    (fl<=      compare   80  fl<=?)
-    (fl>=      compare   80  fl>=?)
-    (fl=       compare   80  fl=?)
-    (fl!=      left      90  ,(gen-not 'fl=?))
+    (,#'fl-       prefix    30  ,#'fl-)
+    (,#'fl*       left      40  ,#'fl*)
+    (,#'fl/       left      40  ,#'fl/)
+    (,#'fl//      left      40  ,#'flquotient)
+    (,#'fl%       left      40  ,#'flremainder)
+    (,#'fl+       left      50  ,#'fl+)
+    (,#'fl-       left      50  ,#'fl-)
+    (,#'fl<       compare   80  ,#'fl<?)
+    (,#'fl>       compare   80  ,#'fl>?)
+    (,#'fl<=      compare   80  ,#'fl<=?)
+    (,#'fl>=      compare   80  ,#'fl>=?)
+    (,#'fl=       compare   80  ,#'fl=?)
+    (,#'fl!=      left      90  ,#'expr-fl!=)
   ))
 
 ; definition of expr using define-expr-syntax and standard operators' definition

@@ -8,6 +8,12 @@
 	  (scheme cxr)
           (rnrs syntax-case (6)))
   (export expr
+          @ @. @@ ** ? // % !=
+          implies as in ~ << >> & ^ : ~& ~^ ~:
+          fx~ fx// fx% fx<< fx>> fx< fx> fx<= fx>=
+          fx= fx!= fx& fx^ fx:
+          fl// fl< fl> fl<= fl>= fl= fl!=)
+  (export expr
           expr-set-prefix
           expr-set-left-infix
           expr-set-right-infix
