@@ -102,7 +102,7 @@
    )
 
 ;--------------------------------------------------------
-
+#|
 (test-set "test expr syntax (user defined operators)"
         ; user defined operations
         ((prefix-name 5)                       (name-prefix 5))
@@ -120,7 +120,7 @@
         ((1 ternary-syntax-1 #f ternary-syntax-2 2) (syntax-ternary 1 #f 2))
         ((1 ternary-syntax-1 #t ternary-syntax-2 2) (syntax-ternary 1 #t 2))
    )
-
+|#
 ;--------------------------------------------------------
 
 (test-set "test expr syntax (sample expressions)"

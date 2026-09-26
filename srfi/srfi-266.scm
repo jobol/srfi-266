@@ -13,7 +13,7 @@
           fx~ fx// fx% fx<< fx>> fx< fx> fx<= fx>=
           fx= fx!= fx& fx^ fx:
           fl// fl< fl> fl<= fl>= fl= fl!=)
-  (export expr
+  #;(export expr
           expr-set-prefix
           expr-set-left-infix
           expr-set-right-infix

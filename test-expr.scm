@@ -77,7 +77,7 @@
 (define B (box 53))
 (define (ff1 p x) (* 103 (p x)))
 (define dx 0.000005)
-(define x 1)
+(set! x 1)
 (define (g x) (- (* x x) 1))
 (define (deriv p) (lambda (x) (/ (- (p (+ x dx)) (p x)) dx)))
 (define (name-prefix x) (+ x 1000000))
@@ -95,7 +95,7 @@
 (define-syntax syntax-ternary (syntax-rules () ((_ u v w) (if v u w))))
 
 ;--------------------------------------------------------
-
+#|
 (expr-set-prefix prefix-name 10 name-prefix)
 (expr-set-prefix prefix-proc 10 (a) (proc-prefix a))
 (expr-set-left-infix left-name 50 name-left)
@@ -109,7 +109,7 @@
 (expr-set-ternary ternary-name-1 ternary-name-2 200 name-ternary)
 (expr-set-ternary ternary-proc-1 ternary-proc-2 200 (a b c) (proc-ternary a b c))
 (expr-set-ternary ternary-syntax-1 ternary-syntax-2 200 (a b c) (syntax-ternary a b c))
-
+|#
 ;--------------------------------------------------------
 
 (include "test-sets.scm")

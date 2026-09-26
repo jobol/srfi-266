@@ -82,7 +82,7 @@
         (newline)))))
 
 ;--------------------------------------------------------
-
+#|
 (expr-set-prefix prefix-name 10 name-prefix)
 (expr-set-prefix prefix-proc 10 (a) (proc-prefix a))
 (expr-set-left-infix left-name 50 name-left)
@@ -96,7 +96,7 @@
 (expr-set-ternary ternary-name-1 ternary-name-2 200 name-ternary)
 (expr-set-ternary ternary-proc-1 ternary-proc-2 200 (a b c) (proc-ternary a b c))
 (expr-set-ternary ternary-syntax-1 ternary-syntax-2 200 (a b c) (syntax-ternary a b c))
-
+|#
 ;--------------------------------------------------------
 
 (include "test-sets.scm")
