@@ -4,28 +4,18 @@
 ; SRFI-266 demo by José Bollo, 2026
 
 (import
-  (scheme base)
   (srfi srfi-64)
+  (srfi srfi-11)
   (srfi srfi-111)
-)
+  (rnrs arithmetic fixnums (6))
+  (rnrs arithmetic flonums (6))
+  (rnrs arithmetic bitwise (6)))
 
-(cond-expand
-  (guile
-    (set! test-log-to-file #f)
-    (import
-            (rnrs arithmetic fixnums (6))
-            (rnrs arithmetic flonums (6))
-            (rnrs arithmetic bitwise (6))))
-  (else
-    (import
-            (srfi srfi-143)
-            (srfi srfi-144)
-            (srfi srfi-151)))
-)
+(set! test-log-to-file #f)
 
 ;--------------------------------------------------------
 
-(include "srfi/expr-impl.scm")
+(import (srfi srfi-266))
 
 ;--------------------------------------------------------
 
@@ -81,6 +71,7 @@
 (set! x 1)
 (define (g x) (- (* x x) 1))
 (define (deriv p) (lambda (x) (/ (- (p (+ x dx)) (p x)) dx)))
+(define (square x) (* x x))
 (define (name-prefix x) (+ x 1000000))
 (define (proc-prefix x) (+ x 2000000))
 (define (name-left x y) (+ x y 3000000))

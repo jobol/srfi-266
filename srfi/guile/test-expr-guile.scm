@@ -3,13 +3,20 @@
 ; SPDX-License-Identifier: MIT
 ; SRFI-266 demo by José Bollo, 2026
 
-(include "srfi/expr-impl.scm")
-
-(use-modules
-  (language tree-il) ; specific to GUILE
-  (srfi srfi-64))
+(import
+  (language tree-il)
+  (srfi srfi-64)
+  (srfi srfi-11)
+  (srfi srfi-111)
+  (rnrs arithmetic fixnums (6))
+  (rnrs arithmetic flonums (6))
+  (rnrs arithmetic bitwise (6)))
 
 (set! test-log-to-file #f)
+
+;--------------------------------------------------------
+
+(import (srfi srfi-266))
 
 ;--------------------------------------------------------
 ; test if a symbol matches a temporary name
@@ -33,6 +40,8 @@
                    (symb  (string->symbol name))
                    (memo  (cons item symb)))
               (cont symb (cons memo tmps))))))
+      ((and (pair? item) (eqv? '@@ (car item)))
+        (cont (caddr item) tmps))
       ((pair? item)
         (rt (car item) tmps
             (lambda (item-car tmps)

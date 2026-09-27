@@ -3,9 +3,21 @@
 ; SPDX-License-Identifier: MIT
 ; SRFI-266 demo by José Bollo, 2026
 
-;-------------------------------------------------------
-; 
-;-------------------------------------------------------
+(define-module (srfi srfi-266)
+  #:export	     
+    (expr
+     @ @. @@ ** ? // % !=
+     implies as in ~ << >> & ^ : ~& ~^ ~:
+     fx~ fx// fx% fx<< fx>> fx< fx> fx<= fx>=
+     fx= fx!= fx& fx^ fx:
+     fl// fl< fl> fl<= fl>= fl= fl!=))
+
+(import
+  (srfi srfi-11)
+  (srfi srfi-111)
+  (rnrs arithmetic fixnums (6))
+  (rnrs arithmetic flonums (6))
+  (rnrs arithmetic bitwise (6)))
 
 ;-------------------------------------------------------
 ; expr define operators that must not be confused with
@@ -496,199 +508,4 @@
         ((_ term ...)
          (t-expr #'(term ...) opdefs))))))
 
-#|
-    ;-------------------------------------------------------
-    ; syntax helpers
-    ;-------------------------------------------------------
-
-    (define-syntax resyntax-expr
-      (lambda (x)
-        ; ensure that data is a syntaxic expression
-        (define (resyntax tid vars item)
-          (syntax-case item ()
-            ((x ...)
-              (let ((lst (syntax (x ...))))
-                (cons (datum->syntax item 'list)
-                  (map
-                    (lambda (item)
-                      (resyntax tid vars item))
-                    lst))))
-            ((x . z)
-              (list (datum->syntax item 'cons)
-                    (resyntax tid vars (syntax x))
-                    (resyntax tid vars (syntax z))))
-            ((x y ... . z)
-              (list (datum->syntax item 'cons)
-                    (resyntax tid vars (syntax x))
-                    (resyntax tid vars (syntax (y ... . z)))))
-            (_
-              (let ((value (syntax->datum item)))
-                (if (member value vars)
-                  item
-                  (list (datum->syntax item 'datum->syntax)
-                        tid
-                        (datum->syntax item (list 'quote value))))))))
-
-        (syntax-case x ()
-          ((_ tid vars item)
-            (resyntax #'tid (syntax->datum #'vars) #'item)))))
-
-    ;-------------------------------------------------------
-    ; abstract syntaxic part
-    ;-------------------------------------------------------
-
-    (define-syntax opdefs-add
-      (syntax-rules ()
-        ((_ opdefs oper type priority repl)
-          (set! opdefs (cons (list 'oper 'type priority repl) opdefs)))))
-
-    (define-syntax opdefs-add-prefix
-      (syntax-rules ()
-        ((_ opdefs oper priority procname)
-          (opdefs-add opdefs oper prefix priority
-            (lambda (tid args)
-              (list (datum->syntax tid 'procname) (car args)))))
-        ((_ opdefs oper priority (x) r)
-          (opdefs-add opdefs oper prefix priority
-            (lambda (tid args)
-              (let ((x (car args)))
-                (resyntax-expr tid (x) r)))))))
-
-    (define-syntax opdefs-add-left-infix
-      (syntax-rules ()
-        ((_ opdefs oper priority procname)
-          (opdefs-add opdefs oper left priority
-            (lambda (tid args)
-              (list (datum->syntax tid 'procname) (car args) (cadr args)))))
-        ((_ opdefs oper priority (x y) r)
-          (opdefs-add opdefs oper left priority
-            (lambda (tid args)
-              (let ((x (car args))
-                    (y (cadr args)))
-                (resyntax-expr tid (x y) r)))))))
-
-    (define-syntax opdefs-add-right-infix
-      (syntax-rules ()
-        ((_ opdefs oper priority procname)
-          (opdefs-add opdefs oper right priority
-            (lambda (tid args)
-              (list (datum->syntax tid 'procname) (car args) (cadr args)))))
-        ((_ opdefs oper priority (x y) r)
-          (opdefs-add opdefs oper right priority
-            (lambda (tid args)
-              (let ((x (car args))
-                    (y (cadr args)))
-                (resyntax-expr tid (x y) r)))))))
-
-    (define-syntax opdefs-add-list
-      (syntax-rules ()
-        ((_ opdefs oper priority procname)
-          (opdefs-add opdefs oper list priority
-            (lambda (tid args)
-              (cons (datum->syntax tid 'procname) args))))
-        ((_ opdefs oper priority x r)
-          (opdefs-add opdefs oper list priority
-            (lambda (tid x)
-              (resyntax-expr tid (x) r))))))
-
-    (define-syntax opdefs-add-compare
-      (syntax-rules ()
-        ((_ opdefs oper priority procname)
-          (opdefs-add opdefs oper compare priority
-            (lambda (tid args)
-              (cons (datum->syntax tid 'procname) args))))
-        ((_ opdefs oper priority x r)
-          (opdefs-add opdefs oper compare priority
-            (lambda (tid x)
-              (resyntax-expr tid (x) r))))))
-
-    (define-syntax opdefs-add-ternary
-      (syntax-rules ()
-        ((_ opdefs first second priority procname)
-          (set! opdefs (cons (list 'first 'ternary priority 'procname)
-                             (cons (list 'second 'pair-of priority 'first)
-                                   opdefs))))
-        ((_ opdefs first second priority (x y z) r)
-          (set! opdefs (cons (list 'first 'ternary priority
-                                 (lambda (tid args)
-                                   (let ((x (car args))
-                                         (y (cadr args))
-                                         (z (caddr args)))
-                                      (resyntax-expr tid (x y z) r))))
-                              (cons (list 'second 'pair-of priority 'first)
-                                    opdefs))))))
-
-
-    ; meta syntax definition for defining a syntax doing expr processing
-    ; accordingly to operator definitions
-    (define-syntax define-expr-syntax
-      (syntax-rules ()
-        ((_ name opdefs)
-          (define-syntax name
-            (lambda (x)
-              (syntax-case x ()
-                ((_ term (... ...))
-                  (t-expr (syntax (term (... ...))) opdefs))))))))
-
-    ;-------------------------------------------------------
-    ; Standard implementation
-    ;-------------------------------------------------------
-
-    ; definition of expr using define-expr-syntax and standard operators' definition
-    (define-expr-syntax expr stdops)
-
-    ; set the prefix operation oper
-    (define-syntax expr-set-prefix
-      (syntax-rules ()
-        ((_ oper priority procname)
-          (opdefs-add-prefix stdops oper priority procname))
-        ((_ oper priority (x) r)
-          (opdefs-add-prefix stdops oper priority (x) r))
-      ))
-
-    ; set the left infix operation oper
-    (define-syntax expr-set-left-infix
-      (syntax-rules ()
-        ((_ oper priority procname)
-          (opdefs-add-left-infix stdops oper priority procname))
-        ((_ oper priority (x y) r)
-          (opdefs-add-left-infix stdops oper priority (x y) r))
-      ))
-
-    ; set the right infix operation oper
-    (define-syntax expr-set-right-infix
-      (syntax-rules ()
-        ((_ oper priority procname)
-          (opdefs-add-right-infix stdops oper priority procname))
-        ((_ oper priority (x y) r)
-          (opdefs-add-right-infix stdops oper priority (x y) r))
-      ))
-
-    ; set the list operation oper
-    (define-syntax expr-set-list
-      (syntax-rules ()
-        ((_ oper priority procname)
-          (opdefs-add-list stdops oper priority procname))
-        ((_ oper priority x r)
-          (opdefs-add-list stdops oper priority x r))
-      ))
-
-    ; set the compare operation oper
-    (define-syntax expr-set-compare
-      (syntax-rules ()
-        ((_ oper priority procname)
-          (opdefs-add-compare stdops oper priority procname))
-        ((_ oper priority x r)
-          (opdefs-add-compare stdops oper priority x r))
-      ))
-
-    ; set the ternary operation oper
-    (define-syntax expr-set-ternary
-      (syntax-rules ()
-        ((_ first second priority procname)
-          (opdefs-add-ternary stdops first second priority procname))
-        ((_ first second priority (x y z) r)
-          (opdefs-add-ternary stdops first second priority (x y z) r))
-      ))
-|#
 
