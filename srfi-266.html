@@ -230,152 +230,152 @@ operators, calls and subexpressions.</p>
 <ul>
 
 <li>
-        <p>Constants are number, strings, vectors, booleans, ...</p>
+  <p>Constants are number, strings, vectors, booleans, ...</p>
 </li>
 
 <li>
-        <p>Variables are symbols related to variables bound in the context
-        of the expression.</p>
+  <p>Variables are symbols related to variables bound in the context
+  of the expression.</p>
 </li>
 
 <li>
-	<p>Operators are keywords. <b><u>They are scanned as symbols, not as
-	bindings to values.</u></b>
-        This rule is required for providing (1) an unambiguous translation
-        of a rich set of operators, and (2) to provision that rich set without
-        requiring any <i>import</i> of any library.</p>
+  <p>Operators are keywords. <b><u>They are scanned as symbols, not as
+  bindings to values.</u></b>
+  This rule is required for providing (1) an unambiguous translation
+  of a rich set of operators, and (2) to provision that rich set without
+  requiring any <i>import</i> of any library.</p>
 
-        <p><b>CAUTION: because of this rule, a potential clash may occur
-        when the same symbol is used for an operator and a variable.</b></p>
+  <p><b>CAUTION: because of this rule, a potential clash may occur
+  when the same symbol is used for an operator and a variable.</b></p>
 
-	<p>Each operator is associated to an operation wich is a procedure or a syntax.
-	The behaviour of syntax <code class="expr-keyword">expr</code> is to translate
-	usage of operators to calls to operations. This is done using rules
-	of replacement involving the type of the operator and its priority.</p>
+  <p>Each operator is associated to an operation wich is a procedure or a syntax.
+  The behaviour of syntax <code class="expr-keyword">expr</code> is to translate
+  usage of operators to calls to operations. This is done using rules
+  of replacement involving the type of the operator and its priority.</p>
 
-        <p>The SRFI comes with a predefined set of operators.
-        These operators are listed <a href="#predefined-operators">below</a>.</p>
+  <p>The SRFI comes with a predefined set of operators.
+  These operators are listed <a href="#predefined-operators">below</a>.</p>
 
-        <p>Operators are of the below types:</p>
+  <p>Operators are of the below types:</p>
 
-        <ul>
-                <li>
-                        <b>prefix</b>: prefixed operator
-                </li>
-                <li>
-                        <b>left</b>: binary operator, left associative
-                </li>
-                <li>
-                        <b>right</b>: binary operator, right associative
-                </li>
-                <li>
-                        <b>list</b>: infix operator leading to list call
-                        (i.e. like <code>+</code>)
-                </li>
-                <li>
-                        <b>compare</b>: infix operator leading to list predicate
-                        (i.e. like <code>&lt;</code>)
-                </li>
-                <li>
-                        <b>ternary</b>: ternary operator
-                        (i.e. like <code>if</code>/<code>else</code>)
-                </li>
-        </ul>
+  <ul>
+    <li>
+      <b>prefix</b>: prefixed operator
+    </li>
+    <li>
+      <b>left</b>: binary operator, left associative
+    </li>
+    <li>
+      <b>right</b>: binary operator, right associative
+    </li>
+    <li>
+      <b>list</b>: infix operator leading to list call
+      (i.e. like <code>+</code>)
+    </li>
+    <li>
+      <b>compare</b>: infix operator leading to list predicate
+      (i.e. like <code>&lt;</code>)
+    </li>
+    <li>
+      <b>ternary</b>: ternary operator
+      (i.e. like <code>if</code>/<code>else</code>)
+    </li>
+  </ul>
 
-        <p>Types of operators are described <a href="#operator-types">below</a>.</p>
+  <p>Types of operators are described <a href="#operator-types">below</a>.</p>
 
-        <p id="priority">Operators have a priority number. The lower the priority number
-        is, the more prioritized is the operator.</p>
+  <p id="priority">Operators have a priority number. The lower the priority number
+  is, the more prioritized is the operator.</p>
 
-        <p>Example of priority of operators: the predefined operators
-        <code>+</code> and <code>*</code> have priority numbers of
-        50 and 40 respectively. Thus:</p>
+  <p>Example of priority of operators: the predefined operators
+  <code>+</code> and <code>*</code> have priority numbers of
+  50 and 40 respectively. Thus:</p>
 
-        <ul>
-                <li>
-                        <code>(expr a + b * c)</code>
-                        becomes
-                        <code>(+ a (* b c))</code>
-                </li>
-                <li>
-                        <code>(expr a * b + c)</code>
-                        becomes
-                        <code>(+ (* a b) c)</code>
-                </li>
+  <ul>
+    <li>
+      <code>(expr a + b * c)</code>
+      becomes
+      <code>(+ a (* b c))</code>
+    </li>
+    <li>
+      <code>(expr a * b + c)</code>
+      becomes
+      <code>(+ (* a b) c)</code>
+    </li>
 </ul>
 
 <li>
-        <p>Calls are right-associative.</p>
+  <p>Calls are right-associative.</p>
 
-	<p>Calls are made of two parts: the <i>callee</i> and the <i>arguments</i>:</p>
+  <p>Calls are made of two parts: the <i>callee</i> and the <i>arguments</i>:</p>
 
-        <ul>
-		<li>The <i>callee</i> is a symbol or a subexpression evaluating to
-                a procedure. It has the location of a prefix operator,
-                but is not a prefix operator.</li>
+  <ul>
+    <li>The <i>callee</i> is a symbol or a subexpression evaluating to
+    a procedure. It has the location of a prefix operator,
+    but is not a prefix operator.</li>
 
-		<li>The <i>arguments</i> are either a single expression or
-		a <a href="#list-subexpression">list subexpression</a>.
-                When it is a list subexpression, the arguments of the
-                call are parsed from the elements of the list.
-                This means that there is no function call in that case.  </li>
-        </ul>
+    <li>The <i>arguments</i> are either a single expression or
+    a <a href="#list-subexpression">list subexpression</a>.
+    When it is a list subexpression, the arguments of the
+    call are parsed from the elements of the list.
+    This means that there is no function call in that case.  </li>
+  </ul>
 
-        <p>Examples:</p>
+  <p>Examples:</p>
 
-        <ul>
-                <li>
-                        <code>(expr a b)</code>
-                        becomes
-                        <code>(a b)</code>
-                </li>
-                <li>
-                        <code>(expr a b c)</code>
-                        becomes
-                        <code>(a (b c))</code>
-                        <i>(right associativity)</i>
-                </li>
-                <li>
-                        <code>(expr a(b c))</code>
-                        becomes
-                        <code>(a b c)</code>
-                </li>
-                <li>
-                        <code>(expr a(b) c)</code>
-                        becomes
-                        <code>((a b) c)</code>
-                </li>
-                <li>
-                        <code>(expr a(b) + c)</code>
-                        becomes
-                        <code>(+ (a b) c)</code>
-                </li>
-                <li>
-                        <code>(expr a((b c) d))</code>
-                        becomes
-                        <code>(a (b c) d)</code>
-                </li>
-                <li>
-                        <code>(expr a(b - c))</code>
-                        becomes
-                        <code>(a (- b c))</code>
-                </li>
-                <li>
-                        <code>(expr a(b (- c)))</code>
-                        becomes
-                        <code>(a (b (- c))</code>
-                </li>
-        </ul>
+  <ul>
+    <li>
+      <code>(expr a b)</code>
+      becomes
+      <code>(a b)</code>
+    </li>
+    <li>
+      <code>(expr a b c)</code>
+      becomes
+      <code>(a (b c))</code>
+      <i>(right associativity)</i>
+    </li>
+    <li>
+      <code>(expr a(b c))</code>
+      becomes
+      <code>(a b c)</code>
+    </li>
+    <li>
+      <code>(expr a(b) c)</code>
+      becomes
+      <code>((a b) c)</code>
+    </li>
+    <li>
+      <code>(expr a(b) + c)</code>
+      becomes
+      <code>(+ (a b) c)</code>
+    </li>
+    <li>
+      <code>(expr a((b c) d))</code>
+      becomes
+      <code>(a (b c) d)</code>
+    </li>
+    <li>
+      <code>(expr a(b - c))</code>
+      becomes
+      <code>(a (- b c))</code>
+    </li>
+    <li>
+      <code>(expr a(b (- c)))</code>
+      becomes
+      <code>(a (b (- c))</code>
+    </li>
+  </ul>
 </li>
 
 <li>
-        <p>Subexpressions are list data (i.e. lexically, they are
-	enclosed in parentheses).</p>
+  <p>Subexpressions are list data (i.e. lexically, they are
+  enclosed in parentheses).</p>
 
-        <p>Subexpressions are of three different types, depending on the
-        context.</p>
+  <p>Subexpressions are of three different types, depending on the
+  context.</p>
 
-        <p>Subexpression are detailed <a href="#sub-expressions">below</a>.</p>
+  <p>Subexpression are detailed <a href="#sub-expressions">below</a>.</p>
 </li>
 
 </ul>
@@ -398,27 +398,27 @@ even if it looks like it should be <code>-3</code>).</p>
     <i>prefix</i>
     <p>Prefix operator for unary operation.</p>
     <p><b><code>OPERATOR X</code></b> becomes
-         <b><code>(OPERATION X)</code></b>.</p>
+  <b><code>(OPERATION X)</code></b>.</p>
   </li>
 
   <li>
     <i>left</i>
     <p>Infix operator for binary operation.</p>
     <p><b><code>X OPERATOR Y</code></b> becomes
-         <b><code>(OPERATION X Y)</code></b>.</p>
+  <b><code>(OPERATION X Y)</code></b>.</p>
     <p>Left associative.</p>
     <p><b><code>X OPERATOR Y OPERATOR Z</code></b> becomes
-         <b><code>(OPERATION (OPERATION X Y) Z)</code></b>.</p>
+  <b><code>(OPERATION (OPERATION X Y) Z)</code></b>.</p>
   </li>
 
   <li>
     <i>right</i>
     <p>Infix operator for binary operation.</p>
     <p><b><code>X OPERATOR Y</code></b> becomes
-         <b><code>(OPERATION X Y)</code></b>.</p>
+  <b><code>(OPERATION X Y)</code></b>.</p>
     <p>Right associative.</p>
     <p><b><code>X OPERATOR Y OPERATOR Z</code></b> becomes
-         <b><code>(OPERATION X (OPERATION Y Z))</code></b>.</p>
+  <b><code>(OPERATION X (OPERATION Y Z))</code></b>.</p>
   </li>
 
   <li>
@@ -442,7 +442,7 @@ even if it looks like it should be <code>-3</code>).</p>
     <i>ternary</i>
     <p>Pair of operators for ternary operation.</p>
     <p><b><code>X FIRST-OPERATOR Y SECOND-OPERATOR Z</code></b> becomes
-         <b><code>(OPERATION X Y Z)</code></b>.</p>
+  <b><code>(OPERATION X Y Z)</code></b>.</p>
     <p>Case of predefined <i>... if ... else ...</i>.</p>
     <p><b><code>X if Y else Z</code></b> becomes
        <b><code>(if Y X Z)</code></b>.</p>
@@ -488,31 +488,31 @@ because they have a specific implementation:</p>
 <dl>
   <dt id="list-subexpression">list subexpression</dt>
   <dd>
-          <p>A subexpression argument of a call is interpreted as
-	  a list of expressions. Arguments of the call are parsed
-	  from the elements of the list.</p>
-          <p>In other words, <b><code>f (a b ...)</code></b> expands as
-          <b><code>((expr f) (expr a) (expr b) ...)</code></b>,
-	  where <i>a</i>, <i>b</i>, ... are not enforced to be an atom,
-	  they are parsed as expressions.</p>
+    <p>A subexpression argument of a call is interpreted as
+    a list of expressions. Arguments of the call are parsed
+    from the elements of the list.</p>
+    <p>In other words, <b><code>f (a b ...)</code></b> expands as
+    <b><code>((expr f) (expr a) (expr b) ...)</code></b>,
+    where <i>a</i>, <i>b</i>, ... are not enforced to be an atom,
+    they are parsed as expressions.</p>
   </dd>
 
   <dt>escape</dt>
   <dd>
-        <p>Except if at the place of an argument of a call,
-        when a subexpression only contains one list,
-	it expands to that inner list literally, without parsing.</p>
-	</p>In other words, <b><code>((a ...))</code></b>
-        becomes <b><code>(a ...)</code></b> without applying <b>expr</b>
-        to the enclosed list.</p>
+    <p>Except if at the place of an argument of a call,
+    when a subexpression only contains one list,
+    it expands to that inner list literally, without parsing.</p>
+    </p>In other words, <b><code>((a ...))</code></b>
+    becomes <b><code>(a ...)</code></b> without applying <b>expr</b>
+    to the enclosed list.</p>
   </dd>
 
   <dt>subexpressions</dt>
   <dd>
-        <p>Except if at the place of an argument of a call,
-        and except if made of only one list,
-        a subexpression <b><code>(a ...)</code></b>
-        expands as <b><code>(expr a ...)</code></b>.</p>
+    <p>Except if at the place of an argument of a call,
+    and except if made of only one list,
+    a subexpression <b><code>(a ...)</code></b>
+    expands as <b><code>(expr a ...)</code></b>.</p>
   </dd>
 </dl>
 
@@ -618,38 +618,38 @@ These helpers are of two main types: basic or procedural.</p>
 
 <ul>
 
-        <li>
-                <p><b><code>(expr-set-prefix operator priority operation)</code></b></p>
-		<p>Replace expressions <code>... <b>operator</b> a ...</code>
-		<br/>by <code>(<b>operation</b> a)</code>.</p>
-        </li>
-        <li>
-                <p><b><code>(expr-set-left-infix operator priority operation)</code></b></p>
-		<p>Replace expressions <code>... a <b>operator</b> b <b>operator</b> c ...</code>
-		<br/>by <code>(<b>operation</b> (<b>operation</b> a b) c)</code>.</p>
-                <p>Applies left associativity.</p>
-        </li>
-        <li>
-                <p><b><code>(expr-set-right-infix operator priority operation)</code></b></p>
-		<p>Replace expressions <code>... a <b>operator</b> b <b>operator</b> c ...</code>
-		<br/>by <code>(<b>operation</b> a (<b>operation</b> b c))</code>.</p>
-                <p>Applies right associativity.</p>
-        </li>
-        <li>
-                <p><b><code>(expr-set-list operator priority operation)</code></b></p>
-		<p>Replace expressions <code>... a <b>operator</b> b <b>operator</b> c ...</code>
-		<br/>by <code>(<b>operation</b> a b c)</code>.</p>
-        </li>
-        <li>
-                <p><b><code>(expr-set-compare operator priority operation)</code></b></p>
-		<p>Replace expressions <code>... a <b>operator</b> b <b>operator</b> c ...</code>
-		<br/>by <code>(<b>operation</b> a b c)</code>.</p>
-        </li>
-        <li>
-                <p><b><code>(expr-set-ternary operator-1 operator-2 priority operation)</code></b></p>
-		<p>Replace expressions <code>... a <b>operator-1</b> b <b>operator-2</b> c ...</code>
-		<br/>by <code>(<b>operation</b> a b c)</code>.</p>
-        </li>
+  <li>
+    <p><b><code>(expr-set-prefix operator priority operation)</code></b></p>
+    <p>Replace expressions <code>... <b>operator</b> a ...</code>
+    <br/>by <code>(<b>operation</b> a)</code>.</p>
+  </li>
+  <li>
+    <p><b><code>(expr-set-left-infix operator priority operation)</code></b></p>
+    <p>Replace expressions <code>... a <b>operator</b> b <b>operator</b> c ...</code>
+    <br/>by <code>(<b>operation</b> (<b>operation</b> a b) c)</code>.</p>
+    <p>Applies left associativity.</p>
+  </li>
+  <li>
+    <p><b><code>(expr-set-right-infix operator priority operation)</code></b></p>
+    <p>Replace expressions <code>... a <b>operator</b> b <b>operator</b> c ...</code>
+    <br/>by <code>(<b>operation</b> a (<b>operation</b> b c))</code>.</p>
+    <p>Applies right associativity.</p>
+  </li>
+  <li>
+    <p><b><code>(expr-set-list operator priority operation)</code></b></p>
+    <p>Replace expressions <code>... a <b>operator</b> b <b>operator</b> c ...</code>
+    <br/>by <code>(<b>operation</b> a b c)</code>.</p>
+  </li>
+  <li>
+    <p><b><code>(expr-set-compare operator priority operation)</code></b></p>
+    <p>Replace expressions <code>... a <b>operator</b> b <b>operator</b> c ...</code>
+    <br/>by <code>(<b>operation</b> a b c)</code>.</p>
+  </li>
+  <li>
+    <p><b><code>(expr-set-ternary operator-1 operator-2 priority operation)</code></b></p>
+    <p>Replace expressions <code>... a <b>operator-1</b> b <b>operator-2</b> c ...</code>
+    <br/>by <code>(<b>operation</b> a b c)</code>.</p>
+  </li>
 </ul>
 
 <p>Procedural helpers look like the definition below
@@ -657,38 +657,38 @@ except that lambdas are not duplicated:</p>
 
 <ul>
 
-        <li>
-                <p><b><code>(expr-set-prefix operator priority (x) expression)</code></b></p>
-		<p>Replace expressions <code>... <b>operator</b> a ...</code>
-		<br/>by <code>((lambda(x) <b>expression</b>) a)</code>.</p>
-        </li>
-        <li>
-                <p><b><code>(expr-set-left-infix operator priority (x y) expression)</code></b></p>
-		<p>Replace expressions <code>... a <b>operator</b> b <b>operator</b> c ...</code>
-		<br/>by <code>((lambda(x y) <b>expression</b>) ((lambda(x y) <b>expression</b>) a b) c)</code>.</p>
-                <p>Applies left associativity.</p>
-        </li>
-        <li>
-                <p><b><code>(expr-set-right-infix operator priority (x y) expression)</code></b></p>
-		<p>Replace expressions <code>... a <b>operator</b> b <b>operator</b> c ...</code>
-		<br/>by <code>((lambda(x y) <b>expression</b>) a ((lambda(x y) <b>expression</b>) b c))</code>.</p>
-                <p>Applies right associativity.</p>
-        </li>
-        <li>
-                <p><b><code>(expr-set-list operator priority x expression)</code></b></p>
-		<p>Replace expressions <code>... a <b>operator</b> b <b>operator</b> c ...</code>
-		<br/>by <code>((lambda x <b>expression</b>) a b c)</code>.</p>
-        </li>
-        <li>
-                <p><b><code>(expr-set-compare operator priority x expression)</code></b></p>
-		<p>Replace expressions <code>... a <b>operator</b> b <b>operator</b> c ...</code>
-		<br/>by <code>((lambda x <b>expression</b>) a b c)</code>.</p>
-        </li>
-        <li>
-                <p><b><code>(expr-set-ternary operator-1 operator-2 priority (x y z) expression)</code></b></p>
-		<p>Replace expressions <code>... a <b>operator-1</b> b <b>operator-2</b> c ...</code>
-		<br/>by <code>((lambda(x y z) <b>expression</b>) a b c)</code>.</p>
-        </li>
+  <li>
+    <p><b><code>(expr-set-prefix operator priority (x) expression)</code></b></p>
+    <p>Replace expressions <code>... <b>operator</b> a ...</code>
+    <br/>by <code>((lambda(x) <b>expression</b>) a)</code>.</p>
+  </li>
+  <li>
+    <p><b><code>(expr-set-left-infix operator priority (x y) expression)</code></b></p>
+    <p>Replace expressions <code>... a <b>operator</b> b <b>operator</b> c ...</code>
+    <br/>by <code>((lambda(x y) <b>expression</b>) ((lambda(x y) <b>expression</b>) a b) c)</code>.</p>
+    <p>Applies left associativity.</p>
+  </li>
+  <li>
+    <p><b><code>(expr-set-right-infix operator priority (x y) expression)</code></b></p>
+    <p>Replace expressions <code>... a <b>operator</b> b <b>operator</b> c ...</code>
+    <br/>by <code>((lambda(x y) <b>expression</b>) a ((lambda(x y) <b>expression</b>) b c))</code>.</p>
+    <p>Applies right associativity.</p>
+  </li>
+  <li>
+    <p><b><code>(expr-set-list operator priority x expression)</code></b></p>
+    <p>Replace expressions <code>... a <b>operator</b> b <b>operator</b> c ...</code>
+    <br/>by <code>((lambda x <b>expression</b>) a b c)</code>.</p>
+  </li>
+  <li>
+    <p><b><code>(expr-set-compare operator priority x expression)</code></b></p>
+    <p>Replace expressions <code>... a <b>operator</b> b <b>operator</b> c ...</code>
+    <br/>by <code>((lambda x <b>expression</b>) a b c)</code>.</p>
+  </li>
+  <li>
+    <p><b><code>(expr-set-ternary operator-1 operator-2 priority (x y z) expression)</code></b></p>
+    <p>Replace expressions <code>... a <b>operator-1</b> b <b>operator-2</b> c ...</code>
+    <br/>by <code>((lambda(x y z) <b>expression</b>) a b c)</code>.</p>
+  </li>
 </ul>
 
 
