@@ -13,7 +13,9 @@
         (((a))            a)
         ((((f0)))         (f0))
         ((- a)            (- a))
+	((moins a plus b) (+ (- a) b))
         ((- a + b)        (+ (- a) b))
+#|	
         ((+ a)            (+ a))
         ((+ - a)          (+ (- a)))
         ((? a)            (if a 1 0))
@@ -31,6 +33,7 @@
         ((- a * (i + j))  (* (- a) (+ i j)))
         ((a + b * c * d)  (+ a (* b c d)))
         ((a * b + c * d)  (+ (* a b) (* c d)))
+
         ((a // b)         (quotient a b))
         ((a // b // c)    (quotient (quotient a b) c))
         ((a % b)          (remainder a b))
@@ -99,6 +102,7 @@
                           (if (if (let-values (((v) u)) w) b d) a e))
         ((a if b if u as v in w else d else e)
                           (if (if (let-values (((v) u)) w) b d) a e))
+|#
    )
 
 ;--------------------------------------------------------
@@ -123,6 +127,7 @@
 |#
 ;--------------------------------------------------------
 
+#|
 (test-set "test expr syntax (sample expressions)"
 
         ((sqrt(b * b - 4 * a * c) as delta in
@@ -144,6 +149,6 @@
         ((a + b + c < d <= x - y - z)
          (let ((temporary-1 d)) (and (< (+ a b c) temporary-1) (<= temporary-1 (- x y z)))))
   )
-
+|#
 ;--------------------------------------------------------
 

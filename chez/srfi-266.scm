@@ -8,12 +8,13 @@
 
 (library (srfi srfi-266) ;expr
   (export expr
+  moins plus
           @ @. @@
           ** ? // % !=
           implies as in ~ << >> & ^ : ~& ~^ ~:
-          fx~ fx// fx% fx<< fx>> fx< fx> fx<= fx>=
-          fx= fx!= fx& fx^ fx:
-          fl// fl< fl> fl<= fl>= fl= fl!=
+          fx~ fx// fx% fx<< fx>> ; fx< fx> fx<= fx>= fx=
+          fx!= fx& fx^ fx:
+          fl// ; fl< fl> fl<= fl>= fl= fl!=
 ;          expr-set-prefix
 ;          expr-set-left-infix
 ;          expr-set-right-infix
@@ -41,10 +42,13 @@
           ))))
 
 (strict-operators
+  moins plus
   @ @. @@
   ** ? // % != implies as in ~ << >> & ^ : ~& ~^ ~:
-  fx~ fx// fx% fx<< fx>> fx< fx> fx<= fx>= fx= fx!= fx& fx^ fx:
-  fl// fl< fl> fl<= fl>= fl= fl!=)
+  fx~ fx// fx% fx<< fx>> ; fx< fx> fx<= fx>= fx= 
+  fx!= fx& fx^ fx:
+  fl// ; fl< fl> fl<= fl>= fl= fl!=
+)
 
 ;-------------------------------------------------------
 ; definition of syntax for specific operators
@@ -110,21 +114,8 @@
 ;---------------------------------------------------
 ; key of expr
 ;---------------------------------------------------
-(define-syntax key-prefix
-  (syntax-rules ()
-    ((_) #t)))
-
-(define-syntax key-infix
-  (syntax-rules ()
-    ((_) #t)))
-
-; an operator definition, opdef, is a list of 3 elements:
-; - type: one of the symbol left, right, list, comp, ternary, as, pair-of
-; - priority: the priority of the operator
-; - repl: the replacement of the identifier
-(define opdef-type       car)
-(define opdef-priority   cadr)
-(define opdef-repl       caddr)
+(define key-prefix)
+(define key-infix)
 
 ;---------------------------------------------------
 ; helpers for defining operators
@@ -156,7 +147,7 @@
   (-         prefix    30  -)
   (+         prefix    30  +)
   (not       prefix    30  not)
-  (?         prefix    30  expr-?)
+;  (?         prefix    30  expr-?)
   (*         list      40  *)
   (/         list      40  /)
   (//        left      40  quotient)
@@ -188,7 +179,7 @@
 ;  (~^        left     110  bitwise-eqv)
 ;  (~:        left     120  bitwise-nor)
 
-  (fx-       prefix    30  fxneg)
+;  (fx-       prefix    30  fxneg)
   (fx~       prefix    30  fxnot)
   (fx*       left      40  fx*)
   (fx//      left      40  fxquotient)
@@ -202,7 +193,7 @@
   (fx<=      compare   80  fx<=?)
   (fx>=      compare   80  fx>=?)
   (fx=       compare   80  fx=?)
-  (fx!=      left      90  expr-fx!=)
+;  (fx!=      left      90  expr-fx!=)
   (fx&       list     100  fxand)
   (fx^       list     110  fxxor)
   (fx:       list     120  fxior)
@@ -210,8 +201,8 @@
   (fl-       prefix    30  fl-)
   (fl*       left      40  fl*)
   (fl/       left      40  fl/)
-  (fl//      left      40  flquotient)
-  (fl%       left      40  flremainder)
+;  (fl//      left      40  flquotient)
+;  (fl%       left      40  flremainder)
   (fl+       left      50  fl+)
   (fl-       left      50  fl-)
   (fl<       compare   80  fl<?)
@@ -219,12 +210,36 @@
   (fl<=      compare   80  fl<=?)
   (fl>=      compare   80  fl>=?)
   (fl=       compare   80  fl=?)
-  (fl!=      left      90  expr-fl!=)
+;  (fl!=      left      90  expr-fl!=)
 )
 
+(define-property moins key-prefix (list 'prefix 10 -))
+(define-property plus key-prefix (list 'prefix 10 +))
+(define-property moins key-infix (list 'list 50 -))
+(define-property plus key-infix (list 'list 50 +))
+;-------------------------------------------------------
+; expr syntax
+;-------------------------------------------------------
+
+(define-syntax expr
+
+  (lambda (x)
+    (lambda (lookup)
+
+;-------------------------------------------------------
+;-------------------------------------------------------
+;-------------------------------------------------------
 ;-------------------------------------------------------
 ; procedural part
 ;-------------------------------------------------------
+
+; an operator definition, opdef, is a list of 3 elements:
+; - type: one of the symbol left, right, list, comp, ternary, as, pair-of
+; - priority: the priority of the operator
+; - repl: the replacement of the identifier
+(define opdef-type       car)
+(define opdef-priority   cadr)
+(define opdef-repl       caddr)
 
 ; trick to get distinct variables, to be changed
 (define (nvar)
@@ -260,9 +275,8 @@
 ;  - opdefs: definition of operations
 (define context-item   car)
 (define context-funok  cadr)
-(define context-lookup caddr)
 
-(define (make-context priority funok lookup)
+(define (make-context priority funok)
   (list priority funok lookup))
 
 ; return the context with the given priority
@@ -303,13 +317,15 @@
 ; get the prefix operation of given item
 ; or #f if item doesn't stand for a prefix
 (define (s-oper item context prefix?)
-  (and (identifier? item)
-       (let* ((lookup (context-lookup context))
-	      (def    (if prefix?
-	                (lookup item key-prefix)
-	                (lookup item key-infix))))
+(let ((u  
+  (and (identifier? item)       
+       (let ((def (if prefix?
+	             (lookup item #'key-prefix)
+	             (lookup item #'key-infix))))
          (and def
 	      (make-oper item def)))))
+)
+  (for-each display (list (if prefix? "prefix " "infix ") item " -> " u "\n")) u))
 
 ; get the prefix operation of given item
 ; or #f if item doesn't stand for a prefix
@@ -391,7 +407,7 @@
     (syntax-case head ()
       ((args ...)
         ; it is a list, space are argument's separation not function calls
-        (let ((arg-ctxt (make-context least-priority #f (context-lookup context))))
+        (let ((arg-ctxt (make-context least-priority #f)))
           ; loop on args
           (let t-arg ((rlst (list call))
                       (frst (syntax (args ...))))
@@ -542,25 +558,27 @@
 
 ; root function for processing expression accordingly to operator definitiions
 (define (t-expr expression lookup)
-  (t-prefix expression (make-context least-priority #t lookup)
+  (t-prefix expression (make-context least-priority #t)
     (lambda (result rest)
       (when rest
         (syntax-violation #f "remaining part" rest))
       result)))
 
 ;-------------------------------------------------------
-; expr syntax
+;-------------------------------------------------------
 ;-------------------------------------------------------
 
-(define-syntax expr
-
-  (lambda (x)
-    (lambda (lookup)
       (syntax-case x ()
         ((_ term ...)
          (t-expr #'(term ...) lookup))))))
 
 )
+
+
+
+
+
+
 
 #|
     ;-------------------------------------------------------

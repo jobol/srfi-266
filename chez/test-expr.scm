@@ -11,6 +11,22 @@
 )
 
 ;--------------------------------------------------------
+(define (test-begin title)
+  #t)
+
+(define (test-equal info cur exd)
+  (unless (equal? cur exd)
+    (display "ERROR ")
+    (display info)
+    (display " -> ")
+    (display cur)
+    (display " != ")
+    (display exd)
+    (newline)))
+
+(define (test-end title)
+  #t)
+;--------------------------------------------------------
 
 (define-syntax test-set-aux
   (syntax-rules ()
