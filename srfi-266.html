@@ -436,7 +436,7 @@ even if it looks like it should be <code>-3</code>).</p>
 
 <p>Subexpression also appear as argument in calls.</p>
 
-<p>There is two kinds of subexpressions:</p>
+<p>There are two kinds of subexpressions:</p>
 
 <dl>
   <dt>subexpression</dt>
@@ -549,13 +549,13 @@ breaking solid foundation. The implication is that I was not more able
 to provide an implementation allowing to add operators or to redefine
 existing operators.</p>
 
-<p>The abitlity to add operators to <code class="expr-keyword">expr</code>
+<p>The ability to add operators to <code class="expr-keyword">expr</code>
 was requested in the discussion, and I'm sad to give up on it. So I hope
-that a later proposal will extend that SRFI with this feature,
+that a later proposal will extend this SRFI with this feature,
 something like <code>(srfi srfi-266 extend)</code> perhaps.</p>
 
 <p>It appears that <code>identifier-property</code> can allow
-to implement that SRFI and solve the extension issue.
+to implement this SRFI and solve the extension issue.
 Alas, during my implementation trials, it can't be done
 using Chez Scheme because symbols for syntax can't be used
 as identifier neither as target nor as property.</p>
